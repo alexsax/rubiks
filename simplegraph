@@ -1,0 +1,57 @@
+from collections import defaultdict
+
+class Node(object):
+	def __init__(self, name, neighbors):
+		self.name = name
+		self.neighbors = set(neighbors)
+
+class SimpleGraph(object):
+	# edges = {start: set(neighbors)}
+	# vertices = set()
+	def __init__(self):
+		self.vertices = set()
+		self.edges = defaultdict(lambda: set())
+
+	def add(self, node):
+		self.add_vertex(node.name)
+		for neighbor in node.neighbors:
+			self.add_edge(node.name, neighbor)
+
+	def add_edge(self, start, end):
+		if start in self.vertices and end in self.vertices:
+			self.edges[start].add(end)
+			self.edges[end].add(start)
+
+	def add_vertex(self, name):
+		self.vertices.add(name)
+
+	def build_from_corners(self, corner_positions):
+		for corner in corner_positions:
+			self.add_vertex(corner)
+		self.add_edge(corner_positions[0],corner_positions[1])
+		self.add_edge(corner_positions[0],corner_positions[3])
+		self.add_edge(corner_positions[0],corner_positions[5])
+		self.add_edge(corner_positions[2],corner_positions[1])
+		self.add_edge(corner_positions[2],corner_positions[3])
+		self.add_edge(corner_positions[2],corner_positions[7])
+		self.add_edge(corner_positions[4],corner_positions[3])
+		self.add_edge(corner_positions[4],corner_positions[5])
+		self.add_edge(corner_positions[4],corner_positions[7])
+		self.add_edge(corner_positions[6],corner_positions[1])
+		self.add_edge(corner_positions[6],corner_positions[5])
+		self.add_edge(corner_positions[6],corner_positions[7])
+
+	def bfs(self, start, end):
+		if start not in self.vertices or end not in self.vertices:
+			raise NameError("Vertex not found")
+		candidate_paths = [[start]]
+		used_nodes = set([start])
+		while len(candidate_paths) > 0:
+			current_path = candidate_paths.pop(0)
+			last_node = current_path[-1]
+			for neighbor in self.edges[last_node]:
+				if neighbor in used_nodes: continue
+				if neighbor == end: return current_path + [neighbor]
+				candidate_paths.append(current_path + [neighbor])
+				used_nodes.add(neighbor)
+		return []
